@@ -2,10 +2,11 @@ import { useState } from "react";
 import { Search, ArrowLeft, ArrowRight, RotateCw, Home } from "lucide-react";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
+import browserBg from "@/assets/browser-bg.webp";
 
 export const BrowserApp = () => {
-  const [url, setUrl] = useState("https://www.google.com");
-  const [inputUrl, setInputUrl] = useState("https://www.google.com");
+  const [url, setUrl] = useState("");
+  const [inputUrl, setInputUrl] = useState("");
 
   const handleNavigate = (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,13 +74,29 @@ export const BrowserApp = () => {
       </div>
 
       {/* Browser Content */}
-      <div className="flex-1 bg-white dark:bg-gray-900">
-        <iframe
-          src={url}
-          className="w-full h-full border-0"
-          title="Browser Window"
-          sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
-        />
+      <div className="flex-1 relative overflow-hidden">
+        {url ? (
+          <iframe
+            src={url}
+            className="w-full h-full border-0"
+            title="Browser Window"
+            sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+          />
+        ) : (
+          <div 
+            className="w-full h-full flex items-center justify-center"
+            style={{
+              backgroundImage: `url(${browserBg})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            }}
+          >
+            <div className="text-center text-white">
+              <h2 className="text-3xl font-bold mb-4">Welcome to Browser</h2>
+              <p className="text-lg">Enter a URL above to start browsing</p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
