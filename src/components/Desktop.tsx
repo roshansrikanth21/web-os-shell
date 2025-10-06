@@ -2,12 +2,13 @@ import { useState } from "react";
 import { Taskbar } from "./Taskbar";
 import { DesktopIcon } from "./DesktopIcon";
 import { Window } from "./Window";
-import { User, FolderOpen, FileText, Mail, Globe } from "lucide-react";
+import { User, FolderOpen, FileText, Mail, Globe, FileWarning } from "lucide-react";
 import { ProfileApp } from "./apps/ProfileApp";
 import { ProjectsApp } from "./apps/ProjectsApp";
 import { ResumeApp } from "./apps/ResumeApp";
 import { ContactApp } from "./apps/ContactApp";
 import { BrowserApp } from "./apps/BrowserApp";
+import { CybersecurityApp } from "./apps/CybersecurityApp";
 
 export interface WindowState {
   id: string;
@@ -31,6 +32,7 @@ export const Desktop = () => {
     { id: "resume", title: "Resume", icon: <FileText className="w-8 h-8" />, content: <ResumeApp /> },
     { id: "contact", title: "Contact", icon: <Mail className="w-8 h-8" />, content: <ContactApp /> },
     { id: "browser", title: "Browser", icon: <Globe className="w-8 h-8" />, content: <BrowserApp /> },
+    { id: "cybersecurity", title: "DO_NOT_OPEN", icon: <FileWarning className="w-8 h-8 text-red-500" />, content: <CybersecurityApp /> },
   ];
 
   const openWindow = (iconId: string) => {
