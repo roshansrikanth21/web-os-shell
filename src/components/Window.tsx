@@ -10,6 +10,7 @@ interface WindowProps {
   onMaximize: () => void;
   onFocus: () => void;
   onUpdatePosition: (id: string, position: { x: number; y: number }) => void;
+  onUnlockClose?: () => void;
 }
 
 export const Window = ({
@@ -19,6 +20,7 @@ export const Window = ({
   onMaximize,
   onFocus,
   onUpdatePosition,
+  onUnlockClose,
 }: WindowProps) => {
   const windowRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -56,6 +58,11 @@ export const Window = ({
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if ((e.target as HTMLElement).closest("button")) return;
+    // Don't allow dragging locked windows
+    if (window.isLocked) {
+      onFocus();
+      return;
+    }
     setIsDragging(true);
     setDragStart({ x: e.clientX, y: e.clientY });
     onFocus();
@@ -92,36 +99,44 @@ export const Window = ({
           <span className="text-sm font-medium text-foreground">{window.title}</span>
         </div>
         <div className="flex items-center gap-1">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 hover:bg-gray-200/50"
-            onClick={onMinimize}
-          >
-            <Minus className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 hover:bg-gray-200/50"
-            onClick={onMaximize}
-          >
-            <Square className="h-3 w-3" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 hover:bg-red-500 hover:text-white"
-            onClick={onClose}
-          >
-            <X className="h-4 w-4" />
-          </Button>
+          {!window.isLocked && (
+            <>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 hover:bg-gray-200/50"
+                onClick={onMinimize}
+              >
+                <Minus className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 hover:bg-gray-200/50"
+                onClick={onMaximize}
+              >
+                <Square className="h-3 w-3" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 hover:bg-red-500 hover:text-white"
+                onClick={onClose}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </>
+          )}
         </div>
       </div>
 
       {/* Content */}
       <div className="h-[calc(100%-40px)] bg-white/95 dark:bg-gray-900/95 overflow-auto">
-        {window.content}
+        {window.isLocked && onUnlockClose
+          ? typeof window.content === 'object' && window.content && 'type' in window.content
+            ? { ...window.content, props: { ...window.content.props, onUnlock: onUnlockClose } }
+            : window.content
+          : window.content}
       </div>
     </div>
   );

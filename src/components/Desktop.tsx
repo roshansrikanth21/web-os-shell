@@ -20,6 +20,7 @@ export interface WindowState {
   position: { x: number; y: number };
   size: { width: number; height: number };
   zIndex: number;
+  isLocked?: boolean;
 }
 
 export const Desktop = () => {
@@ -53,16 +54,20 @@ export const Desktop = () => {
       return;
     }
 
+    // Special handling for cybersecurity app - open maximized and locked
+    const isLocked = iconId === "cybersecurity";
+    
     const newWindow: WindowState = {
       id: iconId,
       title: icon.title,
       icon: icon.icon,
       content: icon.content,
       isMinimized: false,
-      isMaximized: false,
+      isMaximized: isLocked, // Auto-maximize locked windows
       position: { x: 100 + windows.length * 30, y: 80 + windows.length * 30 },
       size: { width: 800, height: 600 },
       zIndex: nextZIndex,
+      isLocked,
     };
 
     setWindows((prev) => [...prev, newWindow]);
@@ -70,16 +75,29 @@ export const Desktop = () => {
   };
 
   const closeWindow = (id: string) => {
+    const window = windows.find((w) => w.id === id);
+    // Don't allow closing locked windows
+    if (window?.isLocked) return;
+    setWindows((prev) => prev.filter((w) => w.id !== id));
+  };
+
+  const unlockAndCloseWindow = (id: string) => {
     setWindows((prev) => prev.filter((w) => w.id !== id));
   };
 
   const minimizeWindow = (id: string) => {
+    const window = windows.find((w) => w.id === id);
+    // Don't allow minimizing locked windows
+    if (window?.isLocked) return;
     setWindows((prev) =>
       prev.map((w) => (w.id === id ? { ...w, isMinimized: true } : w))
     );
   };
 
   const maximizeWindow = (id: string) => {
+    const window = windows.find((w) => w.id === id);
+    // Don't allow toggling maximize on locked windows
+    if (window?.isLocked) return;
     setWindows((prev) =>
       prev.map((w) => (w.id === id ? { ...w, isMaximized: !w.isMaximized } : w))
     );
@@ -122,6 +140,7 @@ export const Desktop = () => {
           onMaximize={() => maximizeWindow(window.id)}
           onFocus={() => focusWindow(window.id)}
           onUpdatePosition={updateWindowPosition}
+          onUnlockClose={window.id === "cybersecurity" ? () => unlockAndCloseWindow(window.id) : undefined}
         />
       ))}
 

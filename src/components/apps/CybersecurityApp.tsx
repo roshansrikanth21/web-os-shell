@@ -1,11 +1,25 @@
 import { useState } from "react";
 import { RansomwareApp } from "./RansomwareApp";
 
-export const CybersecurityApp = () => {
+interface CybersecurityAppProps {
+  onUnlock?: () => void;
+}
+
+export const CybersecurityApp = ({ onUnlock }: CybersecurityAppProps) => {
   const [isUnlocked, setIsUnlocked] = useState(false);
 
+  const handleUnlock = () => {
+    setIsUnlocked(true);
+    // Close the window after unlock
+    if (onUnlock) {
+      setTimeout(() => {
+        onUnlock();
+      }, 500);
+    }
+  };
+
   if (!isUnlocked) {
-    return <RansomwareApp onUnlock={() => setIsUnlocked(true)} />;
+    return <RansomwareApp onUnlock={handleUnlock} />;
   }
 
   return (
